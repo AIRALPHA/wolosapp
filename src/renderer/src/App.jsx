@@ -21,9 +21,6 @@ function App() {
       setStep('client-ready')
       setQr('')
     })
-    ipcRenderer.on('test', () => {
-      alert('test')
-    })
     // Clean the listener after the component is dismounted
     return () => {
       ipcRenderer.removeAllListeners()
@@ -32,7 +29,6 @@ function App() {
 
   return (
     <div className="container">
-      <button onClick={() => alert('Hey')}>Click</button>
       {qr === '' && step !== 'client-ready' && <h1>Loading...</h1>}
       {step === 'qr-code' && qr !== '' && <Qrcode value={qr} />}
       {step === 'client-ready' && <SendMessage />}

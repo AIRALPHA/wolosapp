@@ -6,6 +6,7 @@ import { Client } from 'whatsapp-web.js'
 
 let mainWindow
 let client
+let i = 0
 
 function createWindow() {
   // Create the browser window.
@@ -40,27 +41,6 @@ function createWindow() {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
-
-  client = new Client()
-
-  mainWindow.webContents.send('test')
-
-  client.on('qr', (qr) => {
-    mainWindow.webContents.send('test')
-    mainWindow.webContents.send('qr-code', qr)
-    console.log('QR RECEIVED', qr)
-  })
-
-  client.on('ready', async () => {
-    mainWindow.webContents.send('test')
-    console.log('Client is ready!')
-    mainWindow.webContents.send('client-ready')
-  })
-
-  client.initialize().then(() => {
-    mainWindow.webContents.send('test')
-    console.log('Client Initialized!')
-  })
 }
 
 // This method will be called when Electron has finished
@@ -84,6 +64,32 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+
+  try {
+    client = new Client({
+      puppeteer: {
+        args: ['--no-sandbox'],
+        headless: true,
+        executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+      }
+    })
+
+    client.on('qr', (qr) => {
+      mainWindow.webContents.send('qr-code', qr)
+      console.log('QR RECEIVED', qr)
+    })
+
+    client.on('ready', async () => {
+      console.log('Client is ready!')
+      mainWindow.webContents.send('client-ready')
+    })
+
+    client.initialize().then(() => {
+      console.log('Client Initialized!')
+    })
+  } catch (error) {
+    console.log(error)
+  }
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
